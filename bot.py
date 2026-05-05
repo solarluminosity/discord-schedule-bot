@@ -29,7 +29,6 @@ def next_daily_occurrence(now_msk: datetime, hour: int, minute: int) -> datetime
 
 
 def next_weekday_occurrence(now_msk: datetime, weekday: int, hour: int, minute: int) -> datetime:
-    # Monday=0 ... Sunday=6
     days_ahead = (weekday - now_msk.weekday()) % 7
     candidate_date = now_msk.date() + timedelta(days=days_ahead)
     candidate = datetime.combine(candidate_date, time(hour, minute), tzinfo=MSK)
@@ -43,7 +42,8 @@ def next_weekday_occurrence(now_msk: datetime, weekday: int, hour: int, minute: 
 def build_schedule_text() -> str:
     now_msk = datetime.now(MSK)
 
-    guild_party = next_daily_occurrence(now_msk, 21, 0)
+    guild_party_start = next_daily_occurrence(now_msk, 21, 0)
+    guild_party_end = guild_party_start + timedelta(minutes=30)
 
     arena_mon_start = next_weekday_occurrence(now_msk, 0, 21, 0)
     arena_mon_end = arena_mon_start + timedelta(hours=1)
@@ -58,17 +58,24 @@ def build_schedule_text() -> str:
     ba_fri_end = ba_fri_start + timedelta(hours=2)
 
     text = (
-        "## Расписание\n\n"
-        f"**Гильд пати** — ежедневно в 21:00 МСК (<t:{to_unix(guild_party)}:t>)\n\n"
-        f"**Арена** — понедельник с 21:00–22:00 МСК "
+        "## ✦ Расписание\n\n"
+        "✧ **Гильд пати**\n"
+        f"ежедневно • 21:00–21:30 МСК\n"
+        f"(<t:{to_unix(guild_party_start)}:t>–<t:{to_unix(guild_party_end)}:t>)\n\n"
+
+        "✧ **Арена**\n"
+        f"понедельник • 21:00–22:00 МСК\n"
         f"(<t:{to_unix(arena_mon_start)}:t>–<t:{to_unix(arena_mon_end)}:t>)\n"
-        f"**Арена** — вторник с 21:00–22:00 МСК "
+        f"вторник • 21:00–22:00 МСК\n"
         f"(<t:{to_unix(arena_tue_start)}:t>–<t:{to_unix(arena_tue_end)}:t>)\n\n"
-        f"**Брейкинг арми** — среда с 20:00–22:00 МСК "
+
+        "✧ **Брейкинг арми**\n"
+        f"среда • 20:00–22:00 МСК\n"
         f"(<t:{to_unix(ba_wed_start)}:t>–<t:{to_unix(ba_wed_end)}:t>)\n"
-        f"**Брейкинг арми** — пятница с 20:00–22:00 МСК "
+        f"пятница • 20:00–22:00 МСК\n"
         f"(<t:{to_unix(ba_fri_start)}:t>–<t:{to_unix(ba_fri_end)}:t>)\n\n"
-        "_В скобках Discord показывает локальное время каждого пользователя._"
+
+        "_Время автоматически отображается в вашем часовом поясе_"
     )
 
     return text
